@@ -1,8 +1,7 @@
 (function() {
     angular.module('validation.directive', ['validation.provider'])
-        .directive('validator', ['$injector',
-            function($injector) {
-
+        .directive('validator', ['$injector', 'gettextCatalog',
+            function($injector, gettextCatalog) {
                 var $validationProvider = $injector.get('$validation'),
                     $q = $injector.get('$q'),
                     $timeout = $injector.get('$timeout');
@@ -40,7 +39,6 @@
                     return true;
                 };
 
-
                 /**
                  * Do this function if validation invalid
                  * @param element
@@ -60,7 +58,7 @@
                         messageElem = element.next();
 
                     if ($validationProvider.showErrorMessage && messageToShow) {
-                        messageElem.html($validationProvider.getErrorHTML(messageToShow));
+                        messageElem.html($validationProvider.getErrorHTML(gettextCatalog.getString(messageToShow)));
                         messageElem.css('display', '');
                     } else {
                         messageElem.css('display', 'none');
@@ -166,6 +164,7 @@
                 return {
                     restrict: 'A',
                     require: 'ngModel',
+                    priority: 1,
                     scope: {
                         model: '=ngModel',
                         initialValidity: '=initialValidity',
@@ -174,6 +173,7 @@
                         messageId: '@'
                     },
                     link: function(scope, element, attrs, ctrl) {
+                        console.log(element);
 
                         /**
                          * watch
