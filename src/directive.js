@@ -1,10 +1,20 @@
 (function() {
+
     angular.module('validation.directive', ['validation.provider'])
-        .directive('validator', ['$injector', 'gettextCatalog',
-            function($injector, gettextCatalog) {
+        .directive('validator', ['$injector',
+            function($injector) {
                 var $validationProvider = $injector.get('$validation'),
                     $q = $injector.get('$q'),
-                    $timeout = $injector.get('$timeout');
+                    $timeout = $injector.get('$timeout'),
+                    gettextCatalog;
+
+                if($injector.has('gettextCatalog')) {
+                    gettextCatalog = $injector.get('gettextCatalog');
+                }
+                else
+                {
+                    console.log('Gettext not available. No translations for you.');
+                }
 
                 /**
                  * Do this function if validation valid
@@ -25,7 +35,10 @@
                         messageElem = element.next();
 
                     if ($validationProvider.showSuccessMessage && messageToShow) {
-                        messageElem.html($validationProvider.getSuccessHTML(messageToShow));
+                        if(gettextCatalog)
+                            messageElem.html($validationProvider.getSuccessHTML(gettextCatalog.getString(messageToShow)));
+                        else
+                            messageElem.html($validationProvider.getSuccessHTML(messageToShow));
                         messageElem.css('display', '');
                     } else {
                         messageElem.css('display', 'none');
@@ -58,7 +71,10 @@
                         messageElem = element.next();
 
                     if ($validationProvider.showErrorMessage && messageToShow) {
-                        messageElem.html($validationProvider.getErrorHTML(gettextCatalog.getString(messageToShow)));
+                        if(gettextCatalog)
+                            messageElem.html($validationProvider.getErrorHTML(gettextCatalog.getString(messageToShow)));
+                        else
+                            messageElem.html($validationProvider.getErrorHTML(messageToShow));
                         messageElem.css('display', '');
                     } else {
                         messageElem.css('display', 'none');
@@ -361,58 +377,58 @@
             }
         ])
 
-    .directive('validationSubmit', ['$injector',
-        function($injector) {
+        .directive('validationSubmit', ['$injector',
+            function($injector) {
 
-            var $validationProvider = $injector.get('$validation'),
-                $timeout = $injector.get('$timeout'),
-                $parse = $injector.get('$parse');
+                var $validationProvider = $injector.get('$validation'),
+                    $timeout = $injector.get('$timeout'),
+                    $parse = $injector.get('$parse');
 
-            return {
-                priority: 1, // execute before ng-click (0)
-                require: '?ngClick',
-                link: function postLink(scope, element, attrs) {
-                    var form = $parse(attrs.validationSubmit)(scope);
+                return {
+                    priority: 1, // execute before ng-click (0)
+                    require: '?ngClick',
+                    link: function postLink(scope, element, attrs) {
+                        var form = $parse(attrs.validationSubmit)(scope);
 
-                    $timeout(function() {
-                        // Disable ng-click event propagation
-                        element.off('click');
-                        element.on('click', function(e) {
-                            e.preventDefault();
+                        $timeout(function() {
+                            // Disable ng-click event propagation
+                            element.off('click');
+                            element.on('click', function(e) {
+                                e.preventDefault();
 
-                            $validationProvider.validate(form)
-                                .success(function() {
-                                    $parse(attrs.ngClick)(scope);
-                                });
+                                $validationProvider.validate(form)
+                                    .success(function() {
+                                        $parse(attrs.ngClick)(scope);
+                                    });
+                            });
                         });
-                    });
 
-                }
-            };
-        }
-    ])
+                    }
+                };
+            }
+        ])
 
-    .directive('validationReset', ['$injector',
-        function($injector) {
+        .directive('validationReset', ['$injector',
+            function($injector) {
 
-            var $validationProvider = $injector.get('$validation'),
-                $timeout = $injector.get('$timeout'),
-                $parse = $injector.get('$parse');
+                var $validationProvider = $injector.get('$validation'),
+                    $timeout = $injector.get('$timeout'),
+                    $parse = $injector.get('$parse');
 
-            return {
-                link: function postLink(scope, element, attrs) {
-                    var form = $parse(attrs.validationReset)(scope);
+                return {
+                    link: function postLink(scope, element, attrs) {
+                        var form = $parse(attrs.validationReset)(scope);
 
-                    $timeout(function() {
-                        element.on('click', function(e) {
-                            e.preventDefault();
-                            $validationProvider.reset(form);
+                        $timeout(function() {
+                            element.on('click', function(e) {
+                                e.preventDefault();
+                                $validationProvider.reset(form);
+                            });
                         });
-                    });
 
-                }
-            };
-        }
-    ]);
+                    }
+                };
+            }
+        ]);
 
 }).call(this);
