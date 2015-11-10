@@ -291,12 +291,20 @@
 }).call(this);
 
 (function() {
+
     angular.module('validation.directive', ['validation.provider'])
-        .directive('validator', ['$injector', 'gettextCatalog',
-            function($injector, gettextCatalog) {
+        .directive('validator', ['$injector',
+            function($injector) {
                 var $validationProvider = $injector.get('$validation'),
                     $q = $injector.get('$q'),
-                    $timeout = $injector.get('$timeout');
+                    $timeout = $injector.get('$timeout'),
+                    gettextCatalog;
+
+                if ($injector.has('gettextCatalog')) {
+                    gettextCatalog = $injector.get('gettextCatalog');
+                } else {
+                    console.log('Gettext not available. No translations for you.');
+                }
 
                 /**
                  * Do this function if validation valid
@@ -317,7 +325,10 @@
                         messageElem = element.next();
 
                     if ($validationProvider.showSuccessMessage && messageToShow) {
-                        messageElem.html($validationProvider.getSuccessHTML(messageToShow));
+                        if (gettextCatalog)
+                            messageElem.html($validationProvider.getSuccessHTML(gettextCatalog.getString(messageToShow)));
+                        else
+                            messageElem.html($validationProvider.getSuccessHTML(messageToShow));
                         messageElem.css('display', '');
                     } else {
                         messageElem.css('display', 'none');
@@ -350,7 +361,10 @@
                         messageElem = element.next();
 
                     if ($validationProvider.showErrorMessage && messageToShow) {
-                        messageElem.html($validationProvider.getErrorHTML(gettextCatalog.getString(messageToShow)));
+                        if (gettextCatalog)
+                            messageElem.html($validationProvider.getErrorHTML(gettextCatalog.getString(messageToShow)));
+                        else
+                            messageElem.html($validationProvider.getErrorHTML(messageToShow));
                         messageElem.css('display', '');
                     } else {
                         messageElem.css('display', 'none');
