@@ -8,11 +8,9 @@
                     $timeout = $injector.get('$timeout'),
                     gettextCatalog;
 
-                if($injector.has('gettextCatalog')) {
+                if ($injector.has('gettextCatalog')) {
                     gettextCatalog = $injector.get('gettextCatalog');
-                }
-                else
-                {
+                } else {
                     console.log('Gettext not available. No translations for you.');
                 }
 
@@ -35,7 +33,7 @@
                         messageElem = element.next();
 
                     if ($validationProvider.showSuccessMessage && messageToShow) {
-                        if(gettextCatalog)
+                        if (gettextCatalog)
                             messageElem.html($validationProvider.getSuccessHTML(gettextCatalog.getString(messageToShow)));
                         else
                             messageElem.html($validationProvider.getSuccessHTML(messageToShow));
@@ -71,7 +69,7 @@
                         messageElem = element.next();
 
                     if ($validationProvider.showErrorMessage && messageToShow) {
-                        if(gettextCatalog)
+                        if (gettextCatalog)
                             messageElem.html($validationProvider.getErrorHTML(gettextCatalog.getString(messageToShow)));
                         else
                             messageElem.html($validationProvider.getErrorHTML(messageToShow));
@@ -377,58 +375,58 @@
             }
         ])
 
-        .directive('validationSubmit', ['$injector',
-            function($injector) {
+    .directive('validationSubmit', ['$injector',
+        function($injector) {
 
-                var $validationProvider = $injector.get('$validation'),
-                    $timeout = $injector.get('$timeout'),
-                    $parse = $injector.get('$parse');
+            var $validationProvider = $injector.get('$validation'),
+                $timeout = $injector.get('$timeout'),
+                $parse = $injector.get('$parse');
 
-                return {
-                    priority: 1, // execute before ng-click (0)
-                    require: '?ngClick',
-                    link: function postLink(scope, element, attrs) {
-                        var form = $parse(attrs.validationSubmit)(scope);
+            return {
+                priority: 1, // execute before ng-click (0)
+                require: '?ngClick',
+                link: function postLink(scope, element, attrs) {
+                    var form = $parse(attrs.validationSubmit)(scope);
 
-                        $timeout(function() {
-                            // Disable ng-click event propagation
-                            element.off('click');
-                            element.on('click', function(e) {
-                                e.preventDefault();
+                    $timeout(function() {
+                        // Disable ng-click event propagation
+                        element.off('click');
+                        element.on('click', function(e) {
+                            e.preventDefault();
 
-                                $validationProvider.validate(form)
-                                    .success(function() {
-                                        $parse(attrs.ngClick)(scope);
-                                    });
-                            });
+                            $validationProvider.validate(form)
+                                .success(function() {
+                                    $parse(attrs.ngClick)(scope);
+                                });
                         });
+                    });
 
-                    }
-                };
-            }
-        ])
+                }
+            };
+        }
+    ])
 
-        .directive('validationReset', ['$injector',
-            function($injector) {
+    .directive('validationReset', ['$injector',
+        function($injector) {
 
-                var $validationProvider = $injector.get('$validation'),
-                    $timeout = $injector.get('$timeout'),
-                    $parse = $injector.get('$parse');
+            var $validationProvider = $injector.get('$validation'),
+                $timeout = $injector.get('$timeout'),
+                $parse = $injector.get('$parse');
 
-                return {
-                    link: function postLink(scope, element, attrs) {
-                        var form = $parse(attrs.validationReset)(scope);
+            return {
+                link: function postLink(scope, element, attrs) {
+                    var form = $parse(attrs.validationReset)(scope);
 
-                        $timeout(function() {
-                            element.on('click', function(e) {
-                                e.preventDefault();
-                                $validationProvider.reset(form);
-                            });
+                    $timeout(function() {
+                        element.on('click', function(e) {
+                            e.preventDefault();
+                            $validationProvider.reset(form);
                         });
+                    });
 
-                    }
-                };
-            }
-        ]);
+                }
+            };
+        }
+    ]);
 
 }).call(this);
